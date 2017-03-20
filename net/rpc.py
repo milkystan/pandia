@@ -3,3 +3,7 @@
 # @Time    : 2017/3/14 19:51
 # @Author  : Stan
 # @File    : rpc.py
+
+
+def rpc():
+    pass
