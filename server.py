@@ -6,6 +6,8 @@
 
 import gevent
 from gevent import socket
+from service import _ServerService
+import bson
 
 
 class Server(object):
@@ -16,6 +18,7 @@ class Server(object):
         self.address = address
         self.services = []
         self._stop = False
+        self.server_service = _ServerService(self)
 
     def add_service(self, service):
         if service not in self.services:

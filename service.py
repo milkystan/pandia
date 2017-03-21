@@ -6,6 +6,7 @@
 
 from net.rpc import rpc
 
+
 class Service(object):
     '''
     各种服务的基类
@@ -36,6 +37,11 @@ class CenterService(Service):
         pass
 
 
-
+class _ServerService(object):
+    '''
+    提供Server基本的服务，例如call_method等
+    '''
+    def __init__(self, server):
+        self.server = server
 
 
