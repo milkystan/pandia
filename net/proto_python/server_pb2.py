@@ -7,6 +7,8 @@ from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
 from google.protobuf import reflection as _reflection
 from google.protobuf import symbol_database as _symbol_database
+from google.protobuf import service as _service
+from google.protobuf import service_reflection
 from google.protobuf import descriptor_pb2
 # @@protoc_insertion_point(imports)
 
@@ -19,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='proto/server.proto',
   package='',
   syntax='proto3',
-  serialized_pb=_b('\n\x12proto/server.proto\"H\n\x0b\x43\x61llRequest\x12\x0e\n\x06method\x18\x01 \x01(\t\x12\x12\n\nparameters\x18\x02 \x01(\x0c\x12\x15\n\rneed_response\x18\x03 \x01(\x08\"0\n\x0c\x43\x61llResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\x0c\x32;\n\rServerService\x12*\n\x0b\x63\x61ll_method\x12\x0c.CallRequest\x1a\r.CallResponseb\x06proto3')
+  serialized_pb=_b('\n\x12proto/server.proto\"H\n\x0b\x43\x61llRequest\x12\x0e\n\x06method\x18\x01 \x01(\t\x12\x12\n\nparameters\x18\x02 \x01(\x0c\x12\x15\n\rneed_response\x18\x03 \x01(\x08\"0\n\x0c\x43\x61llResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\x0c\x32;\n\rServerService\x12*\n\x0b\x63\x61ll_method\x12\x0c.CallRequest\x1a\r.CallResponseB\x03\x90\x01\x01\x62\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -124,6 +126,40 @@ CallResponse = _reflection.GeneratedProtocolMessageType('CallResponse', (_messag
   # @@protoc_insertion_point(class_scope:CallResponse)
   ))
 _sym_db.RegisterMessage(CallResponse)
+
+
+DESCRIPTOR.has_options = True
+DESCRIPTOR._options = _descriptor._ParseOptions(descriptor_pb2.FileOptions(), _b('\220\001\001'))
+
+_SERVERSERVICE = _descriptor.ServiceDescriptor(
+  name='ServerService',
+  full_name='ServerService',
+  file=DESCRIPTOR,
+  index=0,
+  options=None,
+  serialized_start=146,
+  serialized_end=205,
+  methods=[
+  _descriptor.MethodDescriptor(
+    name='call_method',
+    full_name='ServerService.call_method',
+    index=0,
+    containing_service=None,
+    input_type=_CALLREQUEST,
+    output_type=_CALLRESPONSE,
+    options=None,
+  ),
+])
+
+ServerService = service_reflection.GeneratedServiceType('ServerService', (_service.Service,), dict(
+  DESCRIPTOR = _SERVERSERVICE,
+  __module__ = 'proto.server_pb2'
+  ))
+
+ServerService_Stub = service_reflection.GeneratedServiceStubType('ServerService_Stub', (ServerService,), dict(
+  DESCRIPTOR = _SERVERSERVICE,
+  __module__ = 'proto.server_pb2'
+  ))
 
 
 # @@protoc_insertion_point(module_scope)

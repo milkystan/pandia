@@ -5,7 +5,7 @@
 # @File    : service.py
 
 from net.rpc import rpc
-
+from net.proto_python import server_pb2
 
 class Service(object):
     '''
@@ -14,7 +14,7 @@ class Service(object):
     def __init__(self, server):
         self.server = server
 
-    @rpc('xx')
+    @rpc
     def stop_server(self, con):
         '''
         关闭服务器
@@ -37,11 +37,16 @@ class CenterService(Service):
         pass
 
 
-class _ServerService(object):
+class _ServerService(server_pb2.ServerService):
     '''
     提供Server基本的服务，例如call_method等
     '''
     def __init__(self, server):
+        server_pb2.ServerService.__init__(self)
         self.server = server
+
+    def call_method(self, rpc_controller, request, done):
+        pass
+
 
 

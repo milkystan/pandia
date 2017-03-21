@@ -1,22 +1,25 @@
 syntax = "proto3";
 
-// 请求包协议
+option py_generic_services = true;
+
+//请求包协议
 message CallRequest {
     string method = 1;
     bytes parameters = 2;
     bool need_response = 3;
 
-}
+};
 
 //响应包协议
 message CallResponse {
     bool success = 1;
     bytes content = 2;
-}
+};
 
-// client和server之间的通信协议
+
+//client和server之间的通信协议
 service ServerService {
 	// 函数调用接口
 	rpc call_method(CallRequest) returns(CallResponse);
 
-}
+};
