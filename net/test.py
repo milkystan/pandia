@@ -9,6 +9,16 @@ import socket
 import gevent
 import time
 from gevent import socket
+import tcp
+
+
+class F(object):
+
+    def __init__(self, a):
+        pass
+
+    def handle_data(self, data):
+        print data
 
 
 def foo(sok):
@@ -19,14 +29,11 @@ def foo(sok):
 def server():
     s = socket.socket()
     s.bind(('0.0.0.0', 63000))
-    s.listen(0)
+    s.listen(500)
     while True:
-        cli, _ = s.accept()
-        while True:
-            print 1111
-            gevent.sleep(0.2)
-            gevent.spawn(foo, cli)
+        cli, addr = s.accept()
+        tcp.KeepAliveConnection(cli, addr, F)
 
 
-
-server()
+if __name__ == '__main__':
+    server()

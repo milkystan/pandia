@@ -13,3 +13,12 @@ client.call('A.b', 1, 2)
 client.cast('A.b', 3)
 client.async_call('A.b', 1, cb)
 client.async_cast('A.b', 1, cb)
+
+# config
+{
+    'name': {
+        'address": ('0.0.0.0', 33333),
+        'keep_alive': True # 表示使用长连接
+    }
+
+}

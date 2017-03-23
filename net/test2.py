@@ -5,10 +5,14 @@
 # @File    : test2.py
 
 import socket
-
+import tcp
+import test
+import time
 s = socket.socket()
 s.connect(('localhost', 63000))
-s.send('hhhh')
-
+con = tcp.Connection(s, None, test.F)
+s = '1' * 67
 while True:
-    print s.recv(4096)
+    time.sleep(0.01)
+    con.send(s)
+

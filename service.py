@@ -14,7 +14,7 @@ class Service(object):
     def __init__(self, server):
         self.server = server
 
-    @rpc
+    # @rpc
     def stop_server(self, con):
         '''
         关闭服务器
@@ -27,17 +27,17 @@ class CenterService(Service):
     服务注册，发现服务类
     '''
 
-    @rpc
+    # @rpc
     def register_service(self, con):
         pass
 
 
-    @rpc
+    # @rpc
     def find_service(self, service_name, con):
         pass
 
 
-class _ServerService(server_pb2.ServerService):
+class ServerService(server_pb2.ServerService):
     '''
     提供Server基本的服务，例如call_method等
     '''
@@ -46,7 +46,7 @@ class _ServerService(server_pb2.ServerService):
         self.server = server
 
     def call_method(self, rpc_controller, request, done):
-        pass
+        print request.SerializeToString(), rpc_controller
 
 
 

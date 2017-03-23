@@ -5,58 +5,86 @@
 # @File    : tcp.py
 
 import gevent
-from gevent import socket
+import struct
+
+INT_SIZE = 4
+SHORT_SIZE = 2
+MAX_LEN = 2 ** (INT_SIZE * 8) - 1
+PACK_ST = 0
+PACK_MI = 1
 
 
-class TcpConnection(object):
-    def __init__(self, socket, peer):
-        self.socket = socket
+class Connection(object):
+    '''
+    短连接，需要传入gevent.socket的socket对象
+    '''
+    def __init__(self, sock, peer):
+        self.socket = sock
         self.peer = peer
         self.handler = None
+        self._stop = False
+        gevent.spawn(self._receive_loop)
+
 
     def set_handler(self, handler):
         self.handler = handler
 
+
     def send(self, data):
-        pass
+        length = len(data)
+        assert length < MAX_LEN, 'Too much data to send!'
+        s_data = struct.pack('<I', length) + data
+        self.socket.sendall(s_data)
 
-    def recv(self, size):
-        pass
+    def _receive_loop(self):
+        '''处理半包'''
+        sock = self.socket
+        r_data = ''
+        state = PACK_ST
+        data_len = None
+        while not self._stop:
+            try:
+                r_data += sock.recv(4096)
+            except Exception, e:
+                print e
+            length = len(r_data)
+            if state == PACK_ST:
+                if length >= INT_SIZE:
+                    data_len = struct.unpack('<I', r_data[:INT_SIZE])[0]
+                    state = PACK_MI
+            if state == PACK_MI and length >= data_len + INT_SIZE:
+                return self.handler.handle_data(r_data[INT_SIZE: INT_SIZE + data_len])
+
+    def close(self):
+        self._stop = True
+        self.socket.close()
+
+
+class KeepAliveConnection(Connection):
+    '''
+    长连接
+    '''
+    def _receive_loop(self):
+        '''处理粘包，半包问题'''
+        sock = self.socket
+        r_data = ''
+        state = PACK_ST
+        data_len = None
+        while not self._stop:
+            try:
+                r_data += sock.recv(4096)
+            except Exception, e:
+                print e
+            length = len(r_data)
+            if state == PACK_ST:
+                if length >= INT_SIZE:
+                    data_len = struct.unpack('<I', r_data[:INT_SIZE])[0]
+                    state = PACK_MI
+
+            if state == PACK_MI and length >= data_len + INT_SIZE:
+                gevent.spawn(self.handler.handle_data, r_data[INT_SIZE: INT_SIZE + data_len])
+                r_data = r_data[INT_SIZE + data_len:]
+                state = PACK_ST
 
 
 
-
-class TcpClient(TcpConnection):
-    pass
-
-
-class TcpServer(object):
-    pass
-
-
-def foo1():
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind(('0.0.0.0', 63333))
-    s.listen(500)
-    while True:
-        cli, addr = s.accept()
-        print 1,2
-
-
-def foo2():
-    import time
-    while True:
-        time.sleep(3)
-        print '222'
-
-def foo3():
-    import time
-
-    print 2
-
-if __name__ == '__main__':
-    f1 = gevent.spawn(foo3)
-    f1.join()
-    gevent.sleep(0)
-    import greenlet
-    greenlet.greenlet

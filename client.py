@@ -5,11 +5,27 @@
 # @File    : client.py
 
 import gevent
-
+from net.proto_python.server_pb2 import ServerService_Stub, CallRequest
+from gevent import socket
+from net.channel import *
+import net.tcp
 
 class Client(object):
     def __init__(self):
-        pass
+        self.server_stub = None
+
+
+    def _call_method(self):
+
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect(('localhost', 63000))
+        conn = net.tcp.Connection(sock, None)
+        channel = Channel(None, conn)
+        stub = ServerService_Stub(channel)
+        req = CallRequest()
+        req.method = '1'
+        req.parameters = 'hhhhhh'
+        stub.call_method(None, req)
 
     def call(self, method, kwargs, callback=None):
         '''
@@ -20,6 +36,8 @@ class Client(object):
         :return: 远程rpc的返回值
         '''
         pass
+
+
 
     def cast(self, method, kwargs, callback=None):
         '''
@@ -53,4 +71,5 @@ class Client(object):
 
 
 if __name__ == '__main__':
-    pass
+    client = Client()
+    client._call_method()

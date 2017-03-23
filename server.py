@@ -6,7 +6,9 @@
 
 import gevent
 from gevent import socket
-from service import _ServerService
+from service import ServerService
+import net.tcp
+from net.channel import *
 import bson
 
 
@@ -18,17 +20,20 @@ class Server(object):
         self.address = address
         self.services = []
         self._stop = False
-        self.server_service = _ServerService(self)
+        self.server_service = ServerService(self)
+        self.conns = {}  # 保存connection引用
 
     def add_service(self, service):
         if service not in self.services:
             self.services.append(service)
 
-    def dispatch(self, con, peer):
+    def dispatch(self, sock, peer):
         '''
         派发请求至对应的Service
         '''
-        pass
+        conn = net.tcp.Connection(sock, peer)
+        channel = Channel(self.server_service, conn)
+        self.conns['t'] = channel
 
     def stop(self):
         self._stop = True
@@ -38,10 +43,10 @@ class Server(object):
         b_socket.bind(self.address)
         b_socket.listen(65535)
         while not self._stop:
-            con, peer = b_socket.accept()
-            gevent.spawn(self.dispatch, con, peer)
+            sock, peer = b_socket.accept()
+            gevent.spawn(self.dispatch, sock, peer)
 
 
 if __name__ == '__main__':
-    server = Server(('0.0.0.0', 63333))
+    server = Server(('0.0.0.0', 63000))
     server.run()
