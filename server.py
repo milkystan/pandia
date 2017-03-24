@@ -18,22 +18,20 @@ class Server(object):
     '''
     def __init__(self, address):
         self.address = address
-        self.services = []
+        self.services = {}
         self._stop = False
         self.server_service = ServerService(self)
         self.conns = {}  # 保存connection引用
 
     def add_service(self, service):
-        if service not in self.services:
-            self.services.append(service)
+        self.services[service.__name__] = service
 
-    def dispatch(self, sock, peer):
+    def dispatch(self, rpc_method, kwargs):
         '''
         派发请求至对应的Service
         '''
-        conn = net.tcp.Connection(sock, peer)
-        channel = Channel(self.server_service, conn)
-        self.conns['t'] = channel
+        service, m_name = rpc_method.split('.')
+        return {'test': 'test'}
 
     def stop(self):
         self._stop = True
@@ -44,7 +42,9 @@ class Server(object):
         b_socket.listen(65535)
         while not self._stop:
             sock, peer = b_socket.accept()
-            gevent.spawn(self.dispatch, sock, peer)
+            conn = net.tcp.Connection(sock, peer)
+            channel = Channel(self.server_service, conn)
+            self.conns['t'] = channel
 
 
 if __name__ == '__main__':

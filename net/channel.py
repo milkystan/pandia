@@ -24,11 +24,16 @@ class Channel(RpcChannel):
         self.conn.send(data)
 
     def handle_data(self, data):
-        method_index = struct.unpack('<H', data[:SHORT_SIZE])[0]
-        method = self.service.GetDescriptor().methods[method_index]
-        request = self.service.GetRequestClass(method)()
-        request.ParseFromString(data[SHORT_SIZE:])
-        self.service.CallMethod(method, self.ctrl, request, None)
+        try:
+            print data
+            method_index = struct.unpack('<H', data[:SHORT_SIZE])[0]
+            method = self.service.GetDescriptor().methods[method_index]
+            request = self.service.GetRequestClass(method)()
+            request.ParseFromString(data[SHORT_SIZE:])
+            self.service.CallMethod(method, self.ctrl, request, None)
+        except Exception, e:
+            raise
+
 
     def handle_close(self):
         pass

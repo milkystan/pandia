@@ -18,7 +18,7 @@ client.async_cast('A.b', 1, cb)
 {
     'name': {
         'address": ('0.0.0.0', 33333),
-        'keep_alive': True # 表示使用长连接
+        'keep_alive': True # 表示使用长连接, client从center中获得是否使用长连接，需要保活(心跳包)
     }
 
 }

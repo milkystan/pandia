@@ -43,6 +43,7 @@ class Connection(object):
         state = PACK_ST
         data_len = None
         while not self._stop:
+            print 'in'
             try:
                 r_data += sock.recv(4096)
             except Exception, e:

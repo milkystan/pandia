@@ -6,6 +6,8 @@
 
 from net.rpc import rpc
 from net.proto_python import server_pb2
+import json
+
 
 class Service(object):
     '''
@@ -46,7 +48,24 @@ class ServerService(server_pb2.ServerService):
         self.server = server
 
     def call_method(self, rpc_controller, request, done):
-        print request.SerializeToString(), rpc_controller
+        method_name = request.method
+        kwargs = json.loads(request.parameters)
+        qid = request.request_id
+        ret = self.server.dispatch(method_name, kwargs)
+        stub = server_pb2.ServerService_Stub(rpc_controller.channel)
+        response = server_pb2.CallResponse()
+        response.response_id = qid
+        response.success = True
+        response.content = json.dumps(ret)
+        print 'before send'
+        stub.send_response(None, response)
+        print 'send'
+
+    def send_response(self, rpc_controller, request, done):
+        print request.SerializeToString()
+        print 'inin'
+
+
 
 
 

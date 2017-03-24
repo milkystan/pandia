@@ -4,22 +4,28 @@ option py_generic_services = true;
 
 //请求包协议
 message CallRequest {
-    string method = 1;
-    bytes parameters = 2;
-    bool need_response = 3;
+    uint32 request_id = 1;
+    string method = 2;
+    bytes parameters = 3;
 
 };
 
 //响应包协议
 message CallResponse {
-    bool success = 1;
-    bytes content = 2;
+    uint32 response_id = 1;
+    bool success = 2;
+    bytes content = 3;
 };
 
+
+//占位
+message Void {
+};
 
 //client和server之间的通信协议
 service ServerService {
 	// 函数调用接口
 	rpc call_method(CallRequest) returns(CallResponse);
+	rpc send_response(CallResponse) returns(Void);
 
 };
