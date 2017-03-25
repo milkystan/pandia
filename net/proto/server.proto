@@ -13,8 +13,7 @@ message CallRequest {
 //响应包协议
 message CallResponse {
     uint32 response_id = 1;
-    bool success = 2;
-    bytes content = 3;
+    bytes content = 2;
 };
 
 

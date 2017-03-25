@@ -11,26 +11,41 @@ from net.channel import *
 import net.tcp
 import json
 from service import ServerService
+from gevent.event import AsyncResult
 
-gl = None
+MAX_REQUEST_ID = 100
 
-class Client(object):
+
+class Client(ServerService):
     def __init__(self):
-        self.server_stub = None
+        ServerService.__init__(self)
+        self.stubs = {} # 供长连接使用
+        self.next_id = 0
+
+
+    def get_request_id(self):
+        nid = self.next_id
+        if nid == MAX_REQUEST_ID:
+            nid = 0
+        nid += 1
+        self.next_id = nid
+        return nid
+
 
     def _call_method(self):
-        global gl
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect(('localhost', 63000))
+        sock.connect(('localhost', 63003))
         conn = net.tcp.Connection(sock, None)
-        channel = Channel(ServerService(None), conn)
-        gl = channel
-        stub = ServerService_Stub(channel)
+        channel = Channel(conn, self, ServerService_Stub)
         req = CallRequest()
-        req.request_id = 1
+        req.request_id = self.get_request_id()
         req.method = '1.B'
         req.parameters = json.dumps({'test': 23})
-        stub.call_method(None, req)
+        result = AsyncResult()
+        self.replies[req.request_id] = result
+        channel.stub.call_method(None, req)
+        return result.get()
+
 
     def call(self, method, kwargs, timeout=None, callback=None):
         '''
@@ -81,6 +96,7 @@ class Client(object):
 
 if __name__ == '__main__':
     client = Client()
-    client._call_method()
-    while True:
-        gevent.sleep(0)
+    print client._call_method()
+    client = Client()
+    print client._call_method()
+

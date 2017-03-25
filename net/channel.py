@@ -11,11 +11,11 @@ import gevent
 
 
 class Channel(RpcChannel):
-    def __init__(self, service, conn):
+    def __init__(self, conn, service, stub_class):
         super(RpcChannel, self).__init__()
         self.service = service
-        conn.set_handler(self)
-        self.conn = conn
+        self.stub = stub_class(self)
+        self.conn = conn(self)
         self.ctrl = Controller(self)
 
     def CallMethod(self, method_descriptor, rpc_controller, request, response_class, done):
@@ -25,12 +25,14 @@ class Channel(RpcChannel):
 
     def handle_data(self, data):
         try:
-            print data
             method_index = struct.unpack('<H', data[:SHORT_SIZE])[0]
             method = self.service.GetDescriptor().methods[method_index]
             request = self.service.GetRequestClass(method)()
             request.ParseFromString(data[SHORT_SIZE:])
-            self.service.CallMethod(method, self.ctrl, request, None)
+            response = self.service.CallMethod(method, self.ctrl, request, None)
+            if response:
+                self.stub.send_response(None, response)
+
         except Exception, e:
             raise
 

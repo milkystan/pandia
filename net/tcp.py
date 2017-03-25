@@ -26,8 +26,12 @@ class Connection(object):
         gevent.spawn(self._receive_loop)
 
 
-    def set_handler(self, handler):
+
+    def __call__(self, handler):
+        '''easy way to set handler'''
         self.handler = handler
+        return self
+
 
 
     def send(self, data):
@@ -43,7 +47,6 @@ class Connection(object):
         state = PACK_ST
         data_len = None
         while not self._stop:
-            print 'in'
             try:
                 r_data += sock.recv(4096)
             except Exception, e:

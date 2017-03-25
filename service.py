@@ -43,27 +43,31 @@ class ServerService(server_pb2.ServerService):
     '''
     提供Server基本的服务，例如call_method等
     '''
-    def __init__(self, server):
+    def __init__(self):
         server_pb2.ServerService.__init__(self)
-        self.server = server
+        self.replies = {}
 
     def call_method(self, rpc_controller, request, done):
+        '''解析请求，派发至对应的sub service'''
         method_name = request.method
         kwargs = json.loads(request.parameters)
-        qid = request.request_id
-        ret = self.server.dispatch(method_name, kwargs)
-        stub = server_pb2.ServerService_Stub(rpc_controller.channel)
+        ret = self.dispatch(method_name, kwargs)
         response = server_pb2.CallResponse()
-        response.response_id = qid
-        response.success = True
+        response.response_id = request.request_id
         response.content = json.dumps(ret)
-        print 'before send'
-        stub.send_response(None, response)
-        print 'send'
+        return response
+
 
     def send_response(self, rpc_controller, request, done):
-        print request.SerializeToString()
-        print 'inin'
+        '''接收返回值'''
+        rid = request.response_id
+        if rid in self.replies:
+            self.replies[rid].set(json.loads(request.content))
+
+
+    def dispatch(self, method, kwargs):
+        '''实现根据method分发调用'''
+        raise NotImplementedError
 
 
 

@@ -6,22 +6,22 @@
 
 import gevent
 from gevent import socket
-from service import ServerService
 import net.tcp
 from net.channel import *
-import bson
+from net.proto_python import server_pb2
+import json
+import service
 
 
-class Server(object):
+class Server(service.ServerService):
     '''
     承载Service的服务器
     '''
     def __init__(self, address):
+        service.ServerService.__init__(self)
         self.address = address
-        self.services = {}
         self._stop = False
-        self.server_service = ServerService(self)
-        self.conns = {}  # 保存connection引用
+        self.channels = {}  # 保存connection引用
 
     def add_service(self, service):
         self.services[service.__name__] = service
@@ -31,7 +31,7 @@ class Server(object):
         派发请求至对应的Service
         '''
         service, m_name = rpc_method.split('.')
-        return {'test': 'test'}
+        return {'test': 'test121334'}
 
     def stop(self):
         self._stop = True
@@ -43,10 +43,10 @@ class Server(object):
         while not self._stop:
             sock, peer = b_socket.accept()
             conn = net.tcp.Connection(sock, peer)
-            channel = Channel(self.server_service, conn)
-            self.conns['t'] = channel
+            channel = Channel(conn, self, server_pb2.ServerService_Stub)
+            self.channels['t'] = channel
 
 
 if __name__ == '__main__':
-    server = Server(('0.0.0.0', 63000))
+    server = Server(('0.0.0.0', 63003))
     server.run()

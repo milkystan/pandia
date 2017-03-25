@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='proto/server.proto',
   package='',
   syntax='proto3',
-  serialized_pb=_b('\n\x12proto/server.proto\"E\n\x0b\x43\x61llRequest\x12\x12\n\nrequest_id\x18\x01 \x01(\r\x12\x0e\n\x06method\x18\x02 \x01(\t\x12\x12\n\nparameters\x18\x03 \x01(\x0c\"E\n\x0c\x43\x61llResponse\x12\x13\n\x0bresponse_id\x18\x01 \x01(\r\x12\x0f\n\x07success\x18\x02 \x01(\x08\x12\x0f\n\x07\x63ontent\x18\x03 \x01(\x0c\"\x06\n\x04Void2b\n\rServerService\x12*\n\x0b\x63\x61ll_method\x12\x0c.CallRequest\x1a\r.CallResponse\x12%\n\rsend_response\x12\r.CallResponse\x1a\x05.VoidB\x03\x90\x01\x01\x62\x06proto3')
+  serialized_pb=_b('\n\x12proto/server.proto\"E\n\x0b\x43\x61llRequest\x12\x12\n\nrequest_id\x18\x01 \x01(\r\x12\x0e\n\x06method\x18\x02 \x01(\t\x12\x12\n\nparameters\x18\x03 \x01(\x0c\"4\n\x0c\x43\x61llResponse\x12\x13\n\x0bresponse_id\x18\x01 \x01(\r\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\x0c\"\x06\n\x04Void2b\n\rServerService\x12*\n\x0b\x63\x61ll_method\x12\x0c.CallRequest\x1a\r.CallResponse\x12%\n\rsend_response\x12\r.CallResponse\x1a\x05.VoidB\x03\x90\x01\x01\x62\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -88,15 +88,8 @@ _CALLRESPONSE = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='success', full_name='CallResponse.success', index=1,
-      number=2, type=8, cpp_type=7, label=1,
-      has_default_value=False, default_value=False,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    _descriptor.FieldDescriptor(
-      name='content', full_name='CallResponse.content', index=2,
-      number=3, type=12, cpp_type=9, label=1,
+      name='content', full_name='CallResponse.content', index=1,
+      number=2, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=_b(""),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -114,7 +107,7 @@ _CALLRESPONSE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=93,
-  serialized_end=162,
+  serialized_end=145,
 )
 
 
@@ -137,8 +130,8 @@ _VOID = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=164,
-  serialized_end=170,
+  serialized_start=147,
+  serialized_end=153,
 )
 
 DESCRIPTOR.message_types_by_name['CallRequest'] = _CALLREQUEST
@@ -176,8 +169,8 @@ _SERVERSERVICE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   options=None,
-  serialized_start=172,
-  serialized_end=270,
+  serialized_start=155,
+  serialized_end=253,
   methods=[
   _descriptor.MethodDescriptor(
     name='call_method',
