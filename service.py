@@ -65,10 +65,21 @@ class ServerService(server_pb2.ServerService):
             self.replies[rid].set(json.loads(request.content))
 
 
+
+    def send_heart_beat(self, rpc_controller, request, done):
+        channel = rpc_controller.channel
+        channel.stub.reply_heart_beat(None, server_pb2.Void())
+
+
+    def reply_heart_beat(self, rpc_controller, request, done):
+        channel = rpc_controller.channel
+        channel.state = channel.ST_RECEIVED
+        channel.retried = 0
+
+
     def dispatch(self, method, kwargs):
         '''实现根据method分发调用'''
         raise NotImplementedError
-
 
 
 

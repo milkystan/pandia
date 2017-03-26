@@ -11,12 +11,18 @@ import gevent
 
 
 class Channel(RpcChannel):
+    ST_INIT = 0
+    ST_WAIT = 1
+    ST_RECEIVED = 2
+
     def __init__(self, conn, service, stub_class):
         super(RpcChannel, self).__init__()
         self.service = service
         self.stub = stub_class(self)
         self.conn = conn(self)
         self.ctrl = Controller(self)
+        self.state = self.ST_INIT
+        self.retried = 0
 
     def CallMethod(self, method_descriptor, rpc_controller, request, response_class, done):
         index = method_descriptor.index
@@ -37,7 +43,8 @@ class Channel(RpcChannel):
             raise
 
 
-    def handle_close(self):
+    def handle_socket_error(self):
+        '''继续上传'''
         pass
 
 

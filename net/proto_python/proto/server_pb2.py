@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='proto/server.proto',
   package='',
   syntax='proto3',
-  serialized_pb=_b('\n\x12proto/server.proto\"E\n\x0b\x43\x61llRequest\x12\x12\n\nrequest_id\x18\x01 \x01(\r\x12\x0e\n\x06method\x18\x02 \x01(\t\x12\x12\n\nparameters\x18\x03 \x01(\x0c\"4\n\x0c\x43\x61llResponse\x12\x13\n\x0bresponse_id\x18\x01 \x01(\r\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\x0c\"\x06\n\x04Void2b\n\rServerService\x12*\n\x0b\x63\x61ll_method\x12\x0c.CallRequest\x1a\r.CallResponse\x12%\n\rsend_response\x12\r.CallResponse\x1a\x05.VoidB\x03\x90\x01\x01\x62\x06proto3')
+  serialized_pb=_b('\n\x12proto/server.proto\"E\n\x0b\x43\x61llRequest\x12\x12\n\nrequest_id\x18\x01 \x01(\r\x12\x0e\n\x06method\x18\x02 \x01(\t\x12\x12\n\nparameters\x18\x03 \x01(\x0c\"4\n\x0c\x43\x61llResponse\x12\x13\n\x0bresponse_id\x18\x01 \x01(\r\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\x0c\"\x06\n\x04Void2\xa5\x01\n\rServerService\x12*\n\x0b\x63\x61ll_method\x12\x0c.CallRequest\x1a\r.CallResponse\x12%\n\rsend_response\x12\r.CallResponse\x1a\x05.Void\x12\x1f\n\x0fsend_heart_beat\x12\x05.Void\x1a\x05.Void\x12 \n\x10reply_heart_beat\x12\x05.Void\x1a\x05.VoidB\x03\x90\x01\x01\x62\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -169,8 +169,8 @@ _SERVERSERVICE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   options=None,
-  serialized_start=155,
-  serialized_end=253,
+  serialized_start=156,
+  serialized_end=321,
   methods=[
   _descriptor.MethodDescriptor(
     name='call_method',
@@ -187,6 +187,24 @@ _SERVERSERVICE = _descriptor.ServiceDescriptor(
     index=1,
     containing_service=None,
     input_type=_CALLRESPONSE,
+    output_type=_VOID,
+    options=None,
+  ),
+  _descriptor.MethodDescriptor(
+    name='send_heart_beat',
+    full_name='ServerService.send_heart_beat',
+    index=2,
+    containing_service=None,
+    input_type=_VOID,
+    output_type=_VOID,
+    options=None,
+  ),
+  _descriptor.MethodDescriptor(
+    name='reply_heart_beat',
+    full_name='ServerService.reply_heart_beat',
+    index=3,
+    containing_service=None,
+    input_type=_VOID,
     output_type=_VOID,
     options=None,
   ),

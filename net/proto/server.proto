@@ -26,5 +26,7 @@ service ServerService {
 	// 函数调用接口
 	rpc call_method(CallRequest) returns(CallResponse);
 	rpc send_response(CallResponse) returns(Void);
+	rpc send_heart_beat(Void) returns(Void);
+	rpc reply_heart_beat(Void) returns(Void);
 
 };

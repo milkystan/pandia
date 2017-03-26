@@ -23,7 +23,7 @@ class Connection(object):
         self.peer = peer
         self.handler = None
         self._stop = False
-        gevent.spawn(self._receive_loop)
+        self.rev_loop = gevent.spawn(self._receive_loop)
 
 
 
@@ -38,7 +38,11 @@ class Connection(object):
         length = len(data)
         assert length < MAX_LEN, 'Too much data to send!'
         s_data = struct.pack('<I', length) + data
-        self.socket.sendall(s_data)
+        try:
+            self.socket.sendall(s_data)
+        except Exception, e:
+            print e, __file__
+            self.handler.handle_socket_error()
 
     def _receive_loop(self):
         '''处理半包'''
@@ -50,7 +54,8 @@ class Connection(object):
             try:
                 r_data += sock.recv(4096)
             except Exception, e:
-                print e
+                print e, __file__
+                self.handler.handle_socket_error()
             length = len(r_data)
             if state == PACK_ST:
                 if length >= INT_SIZE:
@@ -78,7 +83,7 @@ class KeepAliveConnection(Connection):
             try:
                 r_data += sock.recv(4096)
             except Exception, e:
-                print e
+                print e, __file__
             length = len(r_data)
             if state == PACK_ST:
                 if length >= INT_SIZE:
