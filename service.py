@@ -33,9 +33,9 @@ class CenterService(Service):
         super(CenterService, self).__init__(server)
         self.services = {}
 
-    @rpc(Arg('a', 10), Arg('b', 20))
-    def register_service(self, aa, bb):
-        print aa, bb
+    @rpc(Arg('sn'), Arg('ad'), Arg('ka', False))
+    def register_service(self, service_name, address, is_keep_alive):
+        print service_name, address, is_keep_alive
 
     # @rpc
     def find_service(self, service_name, con):
