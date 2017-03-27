@@ -50,13 +50,13 @@ class Client(ServerService):
     def call(self, method, kwargs, timeout=None, callback=None):
         '''
         阻塞调用call
-        :param method: 方法名， 检查合法性
-        :param kwargs: 参数字典 ，检查合法性
+        :param method: 方法名(str)，
+        :param kwargs: 参数字典(dict)
         :timeout: 超时
         :param callback: 不需要设置
         :return: 远程rpc的返回值
         '''
-        pass
+        return
 
 
 

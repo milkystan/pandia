@@ -4,7 +4,7 @@
 # @Author  : Stan
 # @File    : service.py
 
-from net.rpc import rpc
+from net.rpc import rpc, Arg
 from net.proto_python import server_pb2
 import json
 
@@ -29,10 +29,13 @@ class CenterService(Service):
     服务注册，发现服务类
     '''
 
-    # @rpc
-    def register_service(self, con):
-        pass
+    def __init__(self, server):
+        super(CenterService, self).__init__(server)
+        self.services = {}
 
+    @rpc(Arg('a', 10), Arg('b', 20))
+    def register_service(self, aa, bb):
+        print aa, bb
 
     # @rpc
     def find_service(self, service_name, con):
@@ -82,5 +85,7 @@ class ServerService(server_pb2.ServerService):
         raise NotImplementedError
 
 
-
+if __name__ == '__main__':
+    a = CenterService(None)
+    a.register_service({'a':{'2':34}})
 
