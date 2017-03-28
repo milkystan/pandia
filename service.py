@@ -7,6 +7,7 @@
 from net.rpc import rpc, Arg
 from net.proto_python import server_pb2
 import json
+from load_balance import ConsistentHash
 
 
 class Service(object):
@@ -32,10 +33,14 @@ class CenterService(Service):
     def __init__(self, server):
         super(CenterService, self).__init__(server)
         self.services = {}
+        self.picker = ConsistentHash(hash)
 
-    @rpc(Arg('sn'), Arg('ad'), Arg('ka', False))
+    @rpc(Arg('service'), Arg('addr'), Arg('keep', False))
     def register_service(self, service_name, address, is_keep_alive):
         print service_name, address, is_keep_alive
+
+    def unregister_service(self):
+        pass
 
     # @rpc
     def find_service(self, service_name, con):
