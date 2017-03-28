@@ -14,8 +14,16 @@ class Service(object):
     '''
     各种服务的基类
     '''
+
     def __init__(self, server):
         self.server = server
+        self.service_names = []  # str: class_name.service_name
+        self.init_rpc_methods()
+
+    def init_rpc_methods(self):
+        for m in self.__class__.__dict__.values():
+            if hasattr(m, '_local_func'):
+                self.service_names.append('.'.join([self.__class__.__name__, m.__name__]))
 
     # @rpc
     def stop_server(self, con):
@@ -84,7 +92,6 @@ class ServerService(server_pb2.ServerService):
         channel.state = channel.ST_RECEIVED
         channel.retried = 0
 
-
     def dispatch(self, method, kwargs):
         '''实现根据method分发调用'''
         raise NotImplementedError
@@ -92,5 +99,5 @@ class ServerService(server_pb2.ServerService):
 
 if __name__ == '__main__':
     a = CenterService(None)
-    a.register_service({'a':{'2':34}})
+    print a.service_names
 

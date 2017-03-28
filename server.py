@@ -25,9 +25,8 @@ class Server(service.ServerService):
         self._max_retries = None
         self.keep_alive_loop = None
 
-
-    def add_service(self, service):
-        self.services[service.__name__] = service
+    def add_service(self, service_class):
+        self.services[service.__name__] = service_class(self)
 
     def dispatch(self, rpc_method, kwargs):
         '''
@@ -84,5 +83,5 @@ class Server(service.ServerService):
 
 if __name__ == '__main__':
     server = Server(('0.0.0.0', 63003))
-    # server.set_keep_alive(2, 3)
+    server.set_keep_alive(2, 3)
     server.run()

@@ -30,5 +30,6 @@ def rpc(*rpc_args):
                 assert isinstance(a, Arg), 'The type of arguments in rpc decorator must be Arg!'
                 params.append(p_dict.get(a.key) or a.default)
             return func(*params)
+        inner._local_func = func
         return inner
     return outer

@@ -17,10 +17,15 @@ MAX_REQUEST_ID = 100
 
 
 class Client(ServerService):
-    def __init__(self):
+    def __init__(self, is_server=False):
+        '''
+        :param is_server: 是否是Server端创建的Client对象
+        :return:
+        '''
         ServerService.__init__(self)
         self.stubs = {} # 供长连接使用
         self.next_id = 0
+        self.is_server = is_server
 
 
     def get_request_id(self):
