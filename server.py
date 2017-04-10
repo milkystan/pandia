@@ -9,15 +9,15 @@ from gevent import socket
 import net.tcp
 from net.channel import *
 from net.proto_python import server_pb2
-import service
+import rpc_service
 
 
-class Server(service.ServerService):
+class Server(rpc_service.ServerService):
     '''
     承载Service的服务器
     '''
     def __init__(self, address):
-        service.ServerService.__init__(self)
+        rpc_service.ServerService.__init__(self)
         self.address = address
         self._stop = False
         self.channels = {}  # 保存connection引用
@@ -26,7 +26,7 @@ class Server(service.ServerService):
         self.keep_alive_loop = None
 
     def add_service(self, service_class):
-        self.services[service.__name__] = service_class(self)
+        self.services[service_class.__name__] = service_class(self)
 
     def dispatch(self, rpc_method, kwargs):
         '''
@@ -52,7 +52,7 @@ class Server(service.ServerService):
         while not self._stop:
             gevent.sleep(self._wait_time)
             for i in self.channels.keys():
-                if i in self.channels: # 因为协程可能在调用send_heat_beat的时候切出去，切回后需要检查
+                if i in self.channels:  # 因为协程可能在调用send_heat_beat的时候切出去，切回后需要检查
                     channel = self.channels[i]
                     if channel.state == channel.ST_WAIT:
                         if channel.retried > self._max_retries:
@@ -68,6 +68,10 @@ class Server(service.ServerService):
     def handle_keep_alive_failed(self, key):
         del self.channels[key]
         print key, 'failed in keep alive'
+
+
+    def on_server_start(self):
+        pass
 
 
     def run(self):

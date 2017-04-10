@@ -10,23 +10,24 @@ from gevent import socket
 from net.channel import *
 import net.tcp
 import json
-from service import ServerService
+from rpc_service import ServerService
 from gevent.event import AsyncResult
 
 MAX_REQUEST_ID = 100
 
 
 class Client(ServerService):
-    def __init__(self, is_server=False):
+    def __init__(self, is_server=False, cache_time=None):
         '''
         :param is_server: 是否是Server端创建的Client对象
+        :param cache_time: 缓存保留时间，单位：秒
         :return:
         '''
         ServerService.__init__(self)
         self.stubs = {} # 供长连接使用
         self.next_id = 0
         self.is_server = is_server
-
+        self.cache_time = cache_time
 
     def get_request_id(self):
         nid = self.next_id
@@ -36,8 +37,14 @@ class Client(ServerService):
         self.next_id = nid
         return nid
 
+    def find_service(self, service_name):
+        '''
+        返回对应服务名的服务器信息
+        '''
+        return ''
 
-    def _call_method(self):
+    def _test_call_method(self, method, kwargs):
+        '''方便测试'''
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect(('localhost', 63003))
         conn = net.tcp.Connection(sock, None)
@@ -51,6 +58,19 @@ class Client(ServerService):
         channel.stub.call_method(None, req)
         return result.get()
 
+    def _call_method(self, method, kwargs):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect(('localhost', 63003))
+        conn = net.tcp.Connection(sock, None)
+        channel = Channel(conn, self, ServerService_Stub)
+        req = CallRequest()
+        req.request_id = self.get_request_id()
+        req.method = '1.B'
+        req.parameters = json.dumps({'test': 23})
+        result = AsyncResult()
+        self.replies[req.request_id] = result
+        channel.stub.call_method(None, req)
+        return result.get()
 
     def call(self, method, kwargs, timeout=None, callback=None):
         '''
@@ -61,9 +81,10 @@ class Client(ServerService):
         :param callback: 不需要设置
         :return: 远程rpc的返回值
         '''
+        server_info = self.find_service(method)
+        if server_info:
+            pass
         return
-
-
 
     def cast(self, method, kwargs, timeout=None, callback=None):
         '''
@@ -76,32 +97,50 @@ class Client(ServerService):
         '''
         pass
 
-    def async_call(self, method, kwargs, timeout=None, callback=None):
-        '''
-        异步调用call
-        :param method: 方法名
-        :param kwargs: 参数字典
-        :timeout: 超时
-        :param callback: 回调函数
-        :return: Greenlet对象
-        '''
-        return gevent.spawn(self.call, method, kwargs, timeout=None, callback=callback)
 
-    def async_cast(self, method, kwargs, callback=None):
+class _Client(ServerService):
+
+    def __init__(self, keep_alive=False):
+        ServerService.__init__(self)
+        self.keep_alive = keep_alive
+        self.stubs = {}  # 供长连接使用
+        self.next_id = 0
+        self.channel = None
+
+    def get_request_id(self):
+        nid = self.next_id
+        if nid == MAX_REQUEST_ID:
+            nid = 0
+        nid += 1
+        self.next_id = nid
+        return nid
+
+    def connect(self, address):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.connect(address)
+        connection_class = net.tcp.KeepAliveConnection if self.keep_alive else net.tcp.Connection
+        conn = connection_class(sock, None)
+        self.channel = Channel(conn, self, ServerService_Stub)
+
+    def call_method(self, method_name, args):
         '''
-        异步调用cast
-        :param method: 方法名
-        :param kwargs: 参数字典
-        :timeout: 超时
-        :param callback: 回调函数
-        :return: Greenlet对象
+        :param method_name: str
+        :param args:  dict
+        :return: block until something is returned
         '''
-        return gevent.spawn(self.cast, method, kwargs, callback=callback)
+        assert self.channel, 'Connect before calling a method!'
+        req = CallRequest()
+        req.request_id = self.get_request_id()
+        req.method = method_name
+        req.parameters = json.dumps(args)
+        result = AsyncResult()
+        self.replies[req.request_id] = result
+        self.channel.stub.call_method(None, req)
+        return result.get()
 
 
 if __name__ == '__main__':
-    client = Client()
-    print client._call_method()
-    client = Client()
-    print client._call_method()
+    client = _Client(True)
+    client.connect(('localhost', 63003))
+    print client.call_method('1.B', {'test': 23})
 

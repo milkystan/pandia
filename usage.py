@@ -5,20 +5,39 @@
 # @File    : usage.py
 
 import server
-server = Server([service1])
-server.run()
-
-client = Client('center address')
-client.call('A.b', 1, 2)
-client.cast('A.b', 3)
-client.async_call('A.b', 1, cb)
-client.async_cast('A.b', 1, cb)
+# server = Server([service1])
+# server.run()
+#
+# client = Client('center address')
+# client.call('A.b', 1, 2)
+# client.cast('A.b', 3)
+# client.async_call('A.b', 1, cb)
+# client.async_cast('A.b', 1, cb)
 
 # config
-{
-    'name': {
-        'address': '192.168.0.12: 67804'
-        'keep_alive': True # 表示使用长连接, client从center中获得是否使用长连接，需要保活(心跳包)
+SERVER_CONF = {
+    'center': {
+        'center1': {
+            'ip': '127.0.0.0',
+            'port': 78787,
+            'local_start': True,
+        },
+        'center2': {
+            'ip': '127.0.0.0',
+            'port': 78785,
+            'local_start': True
+        }
+    },
+    'server': {
+        'server1': {
+            'ip': '',
+            'port': 89897,
+            'services': [],
+            'keep_alive': True
+        },
+        'server2': {
+
+        }
     }
 
 }
