@@ -6,6 +6,7 @@
 
 from net.rpc import rpc, Arg
 from load_balance import ConsistentHash
+from paxos import *
 
 
 class Service(object):
@@ -39,17 +40,18 @@ class Service(object):
         raise NotImplementedError
 
 
-class CenterService(Service):
+class CenterService(Service, Acceptor, Proposer):
     '''
     服务注册，发现服务类
     '''
 
-    def __init__(self, server, others):
+    def __init__(self, server, sid, others):
         super(CenterService, self).__init__(server)
         self.services = {}
         self.picker = ConsistentHash(hash)
         self.others = others
         self.is_leader = False
+        self.id = sid
 
     @rpc(Arg('service'), Arg('addr'), Arg('keep', False))
     def register_service(self, service_name, address, is_keep_alive):
@@ -62,7 +64,13 @@ class CenterService(Service):
     def find_service(self, service_name, con):
         pass
 
+
+    def
+
     def on_server_start(self):
+        '''
+        开始leader选举
+        '''
         print 'server start up'
 
 

@@ -69,9 +69,10 @@ class Server(rpc_service.ServerService):
         del self.channels[key]
         print key, 'failed in keep alive'
 
-
     def on_server_start(self):
-        pass
+        for s in self.services.values():
+            s.on_server_start()
+
 
 
     def run(self):

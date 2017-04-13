@@ -138,6 +138,12 @@ class _Client(ServerService):
         self.channel.stub.call_method(None, req)
         return result.get()
 
+    def cast_method(self, method_name, args, callback):
+        '''
+        等同于异步call_method,需要callback
+        '''
+        pass
+
 
 if __name__ == '__main__':
     client = _Client(True)
