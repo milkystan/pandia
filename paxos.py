@@ -29,7 +29,7 @@ class Acceptor(object):
             pre_cb(None, None)
 
     def on_proposal(self, pid, value, pro_cb):
-        if self.proposal_id and pid > self.proposal_id or not self.proposal_id:
+        if self.proposal_id and pid >= self.proposal_id or not self.proposal_id:
             self.accept_value = value
             self.accept_id = pid
             pro_cb(True)
@@ -53,7 +53,7 @@ class Proposer(object):
 
     def send_pre_proposal(self):
         for s in self.acceptors:
-            s.on_pre_proposal(self.id, self.value, self.pre_proposal_cb)
+            s.on_pre_proposal(self.id, self.pre_proposal_cb)
 
     def send_proposal(self):
         for s in self.acceptors:
@@ -96,4 +96,17 @@ class Learner(object):
     def on_accept(self, pid, value):
         self.pid = pid
         self.value = value
+        print pid, value
 
+
+
+if __name__ == '__main__':
+    a1 = Acceptor()
+    a2 = Acceptor()
+    a3 = Acceptor()
+    aa = [a1, a2, a3]
+    l = [Learner()]
+    p1 = Proposer(1, 'p1', aa, l)
+    p2 = Proposer(2, 'p2', aa, l)
+    p1.send_pre_proposal()
+    p2.send_pre_proposal()
