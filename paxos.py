@@ -12,43 +12,42 @@ from collections import defaultdict
 
 PRE_PROPOSAL = 0
 PROPOSAL = 1
-SELECTED = 2
+ACCEPTED = 2
 
 
 class Acceptor(object):
-    def __init__(self, learners):
-        self.learners = learners
+    def __init__(self):
         self.proposal_id = None
         self.accept_value = None
+        self.accept_id = None
 
-
-    def notify_learner(self, pid, value):
-        for l in self.learners:
-            l.on_accept(pid, value)
-
-
-    def on_pre_proposal(self, pid, value, cb):
+    def on_pre_proposal(self, pid, pre_cb):
         if self.proposal_id and pid > self.proposal_id or not self.proposal_id:
             self.proposal_id = pid
-            cb()
-        else
+            pre_cb(self.accept_id, self.accept_value)
+        else:
+            pre_cb(None, None)
 
-    def on_proposal(self, pid, value):
+    def on_proposal(self, pid, value, pro_cb):
         if self.proposal_id and pid > self.proposal_id or not self.proposal_id:
             self.accept_value = value
-            self.notify_learner(pid, value)
-
+            self.accept_id = pid
+            pro_cb(True)
+        else:
+            pro_cb(False)
 
 
 class Proposer(object):
 
-    def __init__(self, pid, value, acceptors):
+    def __init__(self, pid, value, acceptors, learners):
         self.id = pid
         self.value = value
         self.acceptors = acceptors
+        self.learners = learners
         self.pre_proposal_reply = None
         self.max_pre_proposal_reply_id = None
         self.pre_proposal_num = 0
+        self.accepted_num = 0
         self.proposal_reply = 0
         self.state = PRE_PROPOSAL
 
@@ -58,7 +57,7 @@ class Proposer(object):
 
     def send_proposal(self):
         for s in self.acceptors:
-            s.on_proposal(self.id, self.value)
+            s.on_proposal(self.id, self.value, self.proposal_cb)
 
     def pre_proposal_cb(self, rid, reply):
         if self.state == PRE_PROPOSAL:
@@ -76,19 +75,25 @@ class Proposer(object):
                     self.value = self.pre_proposal_reply
                 self.send_proposal()
 
+    def proposal_cb(self, accepted):
+        if self.state == PROPOSAL:
+            if accepted:
+                self.accepted_num += 1
+                if self.accepted_num > len(self.acceptors) / 2:
+                    self.state = ACCEPTED
+                    self.notify_learner()
+
+    def notify_learner(self):
+        for l in self.learners:
+            l.on_accept(self.id, self.value)
 
 
-class Leaner(object):
-    def __init__(self, acceptor_num):
-        self.acceptor_num = acceptor_num
-        self.proposals = defaultdict(int)
+class Learner(object):
+    def __init__(self):
+        self.pid = None
         self.value = None
-        self.state = PROPOSAL
 
     def on_accept(self, pid, value):
-        if self.state == PROPOSAL:
-            self.proposals[pid] += 1
-            if self.proposals[pid] > self.acceptor_num / 2:
-                self.value = value
-            self.state = SELECTED
+        self.pid = pid
+        self.value = value
 
