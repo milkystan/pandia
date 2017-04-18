@@ -156,7 +156,15 @@ class ChannelClient(ServerService):
         '''
         等同于异步call_method,需要callback
         '''
-        pass
+        def cast():
+            ret = self.call_method(method_name, args)
+            print '-------', ret
+            print callback.__name__
+            if isinstance(ret, list):
+                callable(*ret)
+            else:
+                callable(ret)
+        gevent.spawn(cast)
 
 
 if __name__ == '__main__':

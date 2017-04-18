@@ -7,7 +7,7 @@
 import server
 import center_service
 from threading import Thread
-centers = [('localhost', 8765), ('localhost', 8766), ('localhost', 8767), ('localhost', 8768), ('localhost', 8769)]
+centers = [('localhost', 8785), ('localhost', 8786), ('localhost', 8787)]
 
 def run_server(i, addr):
     s = server.Server(addr)
