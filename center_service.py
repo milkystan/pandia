@@ -26,13 +26,13 @@ class AcceptorProxy(paxos.Acceptor):
         if self.is_remote:
             self.client.cast_method('on_pre_proposal', {'pid': pid}, pre_cb)
         else:
-            self.client.on_pre_proposal.local_func(pid, pre_cb)
+            self.client.on_pre_proposal.local_func(self.client, pid, pre_cb)
 
     def on_proposal(self, pid, value, pro_cb):
         if self.client:
             self.client.cast_method('on_proposal', {'pid': pid, 'value': value}, pro_cb)
         else:
-            self.client.on_proposal.local_func(pid, value, pro_cb)
+            self.client.on_proposal.local_func(self.client, pid, value, pro_cb)
 
 
 class LearnerProxy(paxos.Learner):
@@ -50,7 +50,7 @@ class LearnerProxy(paxos.Learner):
         if self.is_remote:
             self.client.cast_method('on_accept', {'pid': pid, 'value': value})
         else:
-            self.client.on_accept.local_func(pid, value)
+            self.client.on_accept.local_func(self.client, pid, value)
 
 
 class CenterService(service.Service, paxos.Acceptor, paxos.Proposer, paxos.Learner):

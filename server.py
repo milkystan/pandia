@@ -83,6 +83,7 @@ class Server(rpc_service.ServerService):
         b_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         b_socket.bind(self.address)
         b_socket.listen(65535)
+        self.on_server_start()
         while not self._stop:
             sock, peer = b_socket.accept()
             conn = net.tcp.Connection(sock, peer)
