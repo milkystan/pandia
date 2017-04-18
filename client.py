@@ -98,7 +98,12 @@ class Client(ServerService):
         pass
 
 
-class _Client(ServerService):
+class ChannelClient(ServerService):
+    '''
+    用法1：
+        c = ChannelClient(('localhost', 9000), False)
+        c.connect
+    '''
 
     def __init__(self, keep_alive=False):
         ServerService.__init__(self)
@@ -106,6 +111,7 @@ class _Client(ServerService):
         self.stubs = {}  # 供长连接使用
         self.next_id = 0
         self.channel = None
+        self.address = None
 
     def get_request_id(self):
         nid = self.next_id
@@ -116,8 +122,15 @@ class _Client(ServerService):
         return nid
 
     def connect(self, address):
+        '''
+        异步connect
+        '''
+        self.address = address
+
+    def real_connect(self):
+        assert self.address, 'Not connected yet!'
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect(address)
+        sock.connect(self.address)
         connection_class = net.tcp.KeepAliveConnection if self.keep_alive else net.tcp.Connection
         conn = connection_class(sock, None)
         self.channel = Channel(conn, self, ServerService_Stub)
@@ -128,7 +141,8 @@ class _Client(ServerService):
         :param args:  dict
         :return: block until something is returned
         '''
-        assert self.channel, 'Connect before calling a method!'
+        if not self.channel:
+            self.real_connect()
         req = CallRequest()
         req.request_id = self.get_request_id()
         req.method = method_name
@@ -138,7 +152,7 @@ class _Client(ServerService):
         self.channel.stub.call_method(None, req)
         return result.get()
 
-    def cast_method(self, method_name, args, callback):
+    def cast_method(self, method_name, args, callback=None):
         '''
         等同于异步call_method,需要callback
         '''
@@ -146,7 +160,7 @@ class _Client(ServerService):
 
 
 if __name__ == '__main__':
-    client = _Client(True)
+    client = ChannelClient(True)
     client.connect(('localhost', 63003))
     print client.call_method('1.B', {'test': 23})
 

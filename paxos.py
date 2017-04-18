@@ -22,19 +22,21 @@ class Acceptor(object):
         self.accept_id = None
 
     def on_pre_proposal(self, pid, pre_cb):
+        aid = ava = None
         if self.proposal_id and pid > self.proposal_id or not self.proposal_id:
             self.proposal_id = pid
-            pre_cb(self.accept_id, self.accept_value)
-        else:
-            pre_cb(None, None)
+            aid, ava = self.accept_value, self.accept_value
+        pre_cb and pre_cb(aid, ava)
+        return aid, ava
 
     def on_proposal(self, pid, value, pro_cb):
+        acc = False
         if self.proposal_id and pid >= self.proposal_id or not self.proposal_id:
             self.accept_value = value
             self.accept_id = pid
-            pro_cb(True)
-        else:
-            pro_cb(False)
+            acc = True
+        pro_cb and pro_cb(acc)
+        return acc
 
 
 class Proposer(object):
@@ -90,14 +92,14 @@ class Proposer(object):
 
 class Learner(object):
     def __init__(self):
-        self.pid = None
-        self.value = None
+        self.learned_pid = None
+        self.learned_value = None
 
     def on_accept(self, pid, value):
-        self.pid = pid
-        self.value = value
+        self.learned_pid = pid
+        self.learned_value = value
         print pid, value
-
+        return pid, value
 
 
 if __name__ == '__main__':

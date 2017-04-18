@@ -24,17 +24,21 @@ class Server(rpc_service.ServerService):
         self._wait_time = None
         self._max_retries = None
         self.keep_alive_loop = None
+        self.services = {}
 
-    def add_service(self, service_class):
-        self.services[service_class.__name__] = service_class(self)
+    def add_service(self, service):
+        self.services[service.__class__.__name__] = service
 
     def dispatch(self, rpc_method, kwargs):
         '''
         派发请求至对应的Service
         '''
-        service, m_name = rpc_method.split('.')
-        return {'test': 'test121334'}
-
+        class_name, method_name = rpc_method.split('.')
+        if class_name in self.services:
+            s = self.services[class_name]
+            if method_name in s.service_names:
+                return getattr(s, method_name)(kwargs)
+        return None
 
     def stop(self):
         self._stop = True
@@ -88,5 +92,6 @@ class Server(rpc_service.ServerService):
 
 if __name__ == '__main__':
     server = Server(('0.0.0.0', 63003))
+    server.add_service()
     server.set_keep_alive(2, 3)
     server.run()
