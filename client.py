@@ -5,7 +5,7 @@
 # @File    : client.py
 
 import gevent
-from net.proto_python.server_pb2 import ServerService_Stub, CallRequest
+from net.proto_python.server_pb2 import ServerService_Stub, CallRequest, ChannelInfo
 from gevent import socket
 from net.channel import *
 import net.tcp
@@ -17,6 +17,9 @@ MAX_REQUEST_ID = 100
 
 
 class Client(ServerService):
+    '''
+    相较ChannelClient，加入一些cache
+    '''
     def __init__(self, is_server=False, cache_time=None):
         '''
         :param is_server: 是否是Server端创建的Client对象
@@ -24,7 +27,8 @@ class Client(ServerService):
         :return:
         '''
         ServerService.__init__(self)
-        self.stubs = {} # 供长连接使用
+        # 供长连接使用
+        self.stubs = {}
         self.next_id = 0
         self.is_server = is_server
         self.cache_time = cache_time
@@ -99,19 +103,20 @@ class Client(ServerService):
 
 
 class ChannelClient(ServerService):
-    '''
-    用法1：
-        c = ChannelClient(('localhost', 9000), False)
-        c.connect
-    '''
 
-    def __init__(self, keep_alive=False):
+    def __init__(self, keep_alive=False, on_server=False):
+        '''
+        :param keep_alive: 是否为长连接
+        :param on_server: 是否是服务端发起的请求
+        :return:
+        '''
         ServerService.__init__(self)
         self.keep_alive = keep_alive
         self.stubs = {}  # 供长连接使用
         self.next_id = 0
         self.channel = None
         self.address = None
+        self.on_server = on_server
 
     def get_request_id(self):
         nid = self.next_id
@@ -134,6 +139,10 @@ class ChannelClient(ServerService):
         connection_class = net.tcp.KeepAliveConnection if self.keep_alive else net.tcp.Connection
         conn = connection_class(sock, None)
         self.channel = Channel(conn, self, ServerService_Stub)
+        # init channel info on the other side
+        info = ChannelInfo()
+        info.on_server = self.on_server
+        self.channel.stub.init_channel(None, info)
 
     def call_method(self, method_name, args):
         '''
@@ -158,12 +167,11 @@ class ChannelClient(ServerService):
         '''
         def cast():
             ret = self.call_method(method_name, args)
-            print '-------', ret
-            print callback.__name__
-            if isinstance(ret, list):
-                callable(*ret)
-            else:
-                callable(ret)
+            if callback:
+                if isinstance(ret, list):
+                    callback(*ret)
+                else:
+                    callback(ret)
         gevent.spawn(cast)
 
 

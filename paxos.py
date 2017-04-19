@@ -98,7 +98,7 @@ class Learner(object):
     def on_accept(self, pid, value):
         self.learned_pid = pid
         self.learned_value = value
-        print pid, value
+        print pid, value, 'choosed'
         return pid, value
 
 

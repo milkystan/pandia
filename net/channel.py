@@ -15,7 +15,10 @@ class Channel(RpcChannel):
     ST_WAIT = 1
     ST_RECEIVED = 2
 
-    def __init__(self, conn, service, stub_class):
+    def __init__(self, conn, service, stub_class, peer_on_server=True):
+        '''
+        :param on_server : 另一端是否在服务器上，默认为True
+        '''
         super(RpcChannel, self).__init__()
         self.service = service
         self.stub = stub_class(self)
@@ -23,6 +26,7 @@ class Channel(RpcChannel):
         self.ctrl = Controller(self)
         self.state = self.ST_INIT
         self.retried = 0
+        self.peer_on_server = peer_on_server
 
     def CallMethod(self, method_descriptor, rpc_controller, request, response_class, done):
         index = method_descriptor.index

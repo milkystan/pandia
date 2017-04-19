@@ -30,19 +30,21 @@ class Service(object):
         '''
         self.server.stop()
 
-
     def on_server_start(self):
         '''
         服务器启动时会调用各个service对象的该方法
         '''
         raise NotImplementedError
 
+    def on_lost_channel(self):
+        '''
+        丢失长连接时被调用
+        '''
+        raise NotImplementedError
 
-
-
-
-
-if __name__ == '__main__':
-    a = CenterService(None)
-    print a.service_names
+    def on_new_channel(self):
+        '''
+        新增连接/长连接时被调用
+        '''
+        raise NotImplementedError
 

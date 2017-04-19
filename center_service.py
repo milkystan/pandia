@@ -29,7 +29,7 @@ class AcceptorProxy(paxos.Acceptor):
             self.client.on_pre_proposal.local_func(self.client, pid, pre_cb)
 
     def on_proposal(self, pid, value, pro_cb):
-        if self.client:
+        if self.is_remote:
             self.client.cast_method('CenterService.on_proposal', {'pid': pid, 'value': value}, pro_cb)
         else:
             self.client.on_proposal.local_func(self.client, pid, value, pro_cb)
@@ -68,7 +68,7 @@ class CenterService(service.Service, paxos.Acceptor, paxos.Proposer, paxos.Learn
             if index == sid:
                 c, f = self, False
             else:
-                c, f = ChannelClient(), True
+                c, f = ChannelClient(server.keep_alive, True), True
                 c.connect(address)  # 异步connect，不会阻塞
             acceptors.append(AcceptorProxy(c, f))
             learners.append(LearnerProxy(c, f))
@@ -94,6 +94,12 @@ class CenterService(service.Service, paxos.Acceptor, paxos.Proposer, paxos.Learn
         开始leader选举
         '''
         self.send_pre_proposal()
+
+    def on_lost_channel(self, channel):
+        pass
+
+    def on_new_channel(self, channel):
+        pass
 
     # Acceptor
     @rpc(Arg('pid'), Arg('pre_cb', None))

@@ -16,7 +16,7 @@ class Server(rpc_service.ServerService):
     '''
     承载Service的服务器
     '''
-    def __init__(self, address):
+    def __init__(self, address, keep_alive=False):
         rpc_service.ServerService.__init__(self)
         self.address = address
         self._stop = False
@@ -25,6 +25,7 @@ class Server(rpc_service.ServerService):
         self._max_retries = None
         self.keep_alive_loop = None
         self.services = {}
+        self.keep_alive = keep_alive
 
     def add_service(self, service):
         self.services[service.__class__.__name__] = service
@@ -43,14 +44,13 @@ class Server(rpc_service.ServerService):
     def stop(self):
         self._stop = True
 
-
     def set_keep_alive(self, wait_time, max_retries):
         '''服务端发送心跳包'''
+        assert self.keep_alive is True, 'Set server.keep_alive True before call this method!'
         self._wait_time = wait_time
         self._max_retries = max_retries
         if not self.keep_alive_loop:
             self.keep_alive_loop = gevent.spawn(self._send_heart_beat)
-
 
     def _send_heart_beat(self):
         while not self._stop:
@@ -67,17 +67,15 @@ class Server(rpc_service.ServerService):
                     channel.state = channel.ST_WAIT
                     channel.stub.send_heart_beat(None, server_pb2.Void())
 
-
-
     def handle_keep_alive_failed(self, key):
+        for s in self.services.values():
+            s.on_lost_channel(self.channels[key])
         del self.channels[key]
         print key, 'failed in keep alive'
 
     def on_server_start(self):
         for s in self.services.values():
             s.on_server_start()
-
-
 
     def run(self):
         b_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -86,9 +84,9 @@ class Server(rpc_service.ServerService):
         self.on_server_start()
         while not self._stop:
             sock, peer = b_socket.accept()
-            conn = net.tcp.Connection(sock, peer)
+            conn = net.tcp.KeepAliveConnection(sock, peer) if self.keep_alive else net.tcp.Connection(sock, peer)
             channel = Channel(conn, self, server_pb2.ServerService_Stub)
-            self.channels['t'] = channel
+            self.channels[conn.peer] = channel
 
 
 if __name__ == '__main__':

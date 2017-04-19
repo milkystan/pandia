@@ -7,14 +7,16 @@
 import server
 import center_service
 from threading import Thread
-centers = [('localhost', 8785), ('localhost', 8786), ('localhost', 8787)]
+centers = [('localhost', 8785), ('localhost', 8786), ('localhost', 8787), ('localhost', 8788), ('localhost', 8789), ('localhost', 8790)]
+
 
 def run_server(i, addr):
-    s = server.Server(addr)
+    s = server.Server(addr, True)
     service = center_service.CenterService(s, i, centers)
     s.add_service(service)
     s.set_keep_alive(2, 3)
     s.run()
+
 
 def run_centers():
     for i, c in enumerate(centers):
