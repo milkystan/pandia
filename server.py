@@ -16,7 +16,7 @@ class Server(rpc_service.ServerService):
     '''
     承载Service的服务器
     '''
-    def __init__(self, address, keep_alive=False):
+    def __init__(self, address):
         rpc_service.ServerService.__init__(self)
         self.address = address
         self._stop = False
@@ -25,10 +25,12 @@ class Server(rpc_service.ServerService):
         self._max_retries = None
         self.keep_alive_loop = None
         self.services = {}
-        self.keep_alive = keep_alive
 
     def add_service(self, service):
         self.services[service.__class__.__name__] = service
+
+    def add_channel(self, channel):
+        self.channels[channel.conn.peer] = channel
 
     def dispatch(self, rpc_method, kwargs):
         '''
@@ -46,7 +48,6 @@ class Server(rpc_service.ServerService):
 
     def set_keep_alive(self, wait_time, max_retries):
         '''服务端发送心跳包'''
-        assert self.keep_alive is True, 'Set server.keep_alive True before call this method!'
         self._wait_time = wait_time
         self._max_retries = max_retries
         if not self.keep_alive_loop:
@@ -84,7 +85,7 @@ class Server(rpc_service.ServerService):
         self.on_server_start()
         while not self._stop:
             sock, peer = b_socket.accept()
-            conn = net.tcp.KeepAliveConnection(sock, peer) if self.keep_alive else net.tcp.Connection(sock, peer)
+            conn = net.tcp.AdvancedConnection(sock, peer)  # 默认为短连接，根据需求转化为长连接
             channel = Channel(conn, self, server_pb2.ServerService_Stub)
             self.channels[conn.peer] = channel
 

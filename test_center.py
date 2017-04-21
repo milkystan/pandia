@@ -11,7 +11,7 @@ centers = [('localhost', 8785), ('localhost', 8786), ('localhost', 8787), ('loca
 
 
 def run_server(i, addr):
-    s = server.Server(addr, True)
+    s = server.Server(addr)
     service = center_service.CenterService(s, i, centers)
     s.add_service(service)
     s.set_keep_alive(2, 3)

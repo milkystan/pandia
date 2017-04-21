@@ -21,11 +21,6 @@ message CallResponse {
 message Void {
 };
 
-//channel初始信息
-message ChannelInfo {
-    bool on_server = 1;
-};
-
 
 //client和server之间的通信协议
 service ServerService {
@@ -34,6 +29,6 @@ service ServerService {
 	rpc send_response(CallResponse) returns(Void);
 	rpc send_heart_beat(Void) returns(Void);
 	rpc reply_heart_beat(Void) returns(Void);
-	rpc init_channel(ChannelInfo) returns(Void);
+	rpc keep_channel(Void) returns(Void);
 
 };

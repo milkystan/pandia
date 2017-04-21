@@ -41,9 +41,8 @@ class ServerService(server_pb2.ServerService):
         channel.state = channel.ST_RECEIVED
         channel.retried = 0
 
-    def init_channel(self, rpc_controller, request, done):
-        channel = rpc_controller.channel
-        channel.peer_on_server = request.on_server
+    def keep_channel(self, rpc_controller, request, done):
+        rpc_controller.channel.conn.keep_alive = True
 
     def dispatch(self, method, kwargs):
         '''实现根据method分发调用'''

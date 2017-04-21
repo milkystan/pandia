@@ -36,6 +36,18 @@ class Service(object):
         '''
         raise NotImplementedError
 
+    def register_channel(self):
+        '''
+        注册channel以监听其断开事件
+        '''
+        raise NotImplementedError
+
+    def unregister_channel(self):
+        '''
+        注销channel
+        '''
+        raise NotImplementedError
+
     def on_lost_channel(self):
         '''
         丢失长连接时被调用

@@ -55,7 +55,8 @@ class LearnerProxy(paxos.Learner):
 
 class CenterService(service.Service, paxos.Acceptor, paxos.Proposer, paxos.Learner):
     '''
-    服务注册，发现服务类，继承Paxos相关成员
+    实现基于Paxos算法的leader选举服务
+    提供服务注册，发现服务
     '''
 
     def __init__(self, server, sid, centers):
@@ -68,7 +69,7 @@ class CenterService(service.Service, paxos.Acceptor, paxos.Proposer, paxos.Learn
             if index == sid:
                 c, f = self, False
             else:
-                c, f = ChannelClient(server.keep_alive, True), True
+                c, f = ChannelClient(True), True
                 c.connect(address)  # 异步connect，不会阻塞
             acceptors.append(AcceptorProxy(c, f))
             learners.append(LearnerProxy(c, f))
@@ -77,17 +78,6 @@ class CenterService(service.Service, paxos.Acceptor, paxos.Proposer, paxos.Learn
         self.picker = ConsistentHash(hash)
         self.centers = centers
         self.is_leader = False
-
-    @rpc(Arg('service'), Arg('addr'), Arg('keep', False))
-    def register_service(self, service_name, address, is_keep_alive):
-        print service_name, address, is_keep_alive
-
-    def unregister_service(self):
-        pass
-
-    # @rpc
-    def find_service(self, service_name, con):
-        pass
 
     def on_server_start(self):
         '''
@@ -115,7 +105,18 @@ class CenterService(service.Service, paxos.Acceptor, paxos.Proposer, paxos.Learn
     def on_accept(self, pid, value):
         return super(CenterService, self).on_accept(pid, value)
 
+    # 服务注册服务
+    @rpc(Arg('service'), Arg('addr'), Arg('keep', False))
+    def register_service(self, service_name, address, is_keep_alive):
+        print service_name, address, is_keep_alive
+
+    def unregister_service(self):
+        pass
+
+    # @rpc
+    def find_service(self, service_name, con):
+        pass
+
 
 if __name__ == '__main__':
-    s = CenterService(1,1,[1])
-    print s.service_names
+    pass

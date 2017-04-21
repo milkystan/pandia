@@ -5,7 +5,7 @@
 # @File    : client.py
 
 import gevent
-from net.proto_python.server_pb2 import ServerService_Stub, CallRequest, ChannelInfo
+from net.proto_python.server_pb2 import ServerService_Stub, CallRequest, Void
 from gevent import socket
 from net.channel import *
 import net.tcp
@@ -104,10 +104,10 @@ class Client(ServerService):
 
 class ChannelClient(ServerService):
 
-    def __init__(self, keep_alive=False, on_server=False):
+    def __init__(self, keep_alive=False):
         '''
         :param keep_alive: 是否为长连接
-        :param on_server: 是否是服务端发起的请求
+        :param info: 需要传递给远端的"长连接"channel信息，短连接设置info无效！
         :return:
         '''
         ServerService.__init__(self)
@@ -116,7 +116,6 @@ class ChannelClient(ServerService):
         self.next_id = 0
         self.channel = None
         self.address = None
-        self.on_server = on_server
 
     def get_request_id(self):
         nid = self.next_id
@@ -133,16 +132,14 @@ class ChannelClient(ServerService):
         self.address = address
 
     def real_connect(self):
-        assert self.address, 'Not connected yet!'
+        assert self.address, 'Run "connect" before calling "call_method" or "cast_method"'
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect(self.address)
-        connection_class = net.tcp.KeepAliveConnection if self.keep_alive else net.tcp.Connection
-        conn = connection_class(sock, None)
+        conn = net.tcp.AdvancedConnection(sock, None, self.keep_alive)
         self.channel = Channel(conn, self, ServerService_Stub)
-        # init channel info on the other side
-        info = ChannelInfo()
-        info.on_server = self.on_server
-        self.channel.stub.init_channel(None, info)
+        if self.keep_alive:
+            # 通知对面保持该连接
+            self.channel.stub.keep_channel(None, Void())
 
     def call_method(self, method_name, args):
         '''

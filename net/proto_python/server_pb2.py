@@ -21,7 +21,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='server.proto',
   package='',
   syntax='proto3',
-  serialized_pb=_b('\n\x0cserver.proto\"E\n\x0b\x43\x61llRequest\x12\x12\n\nrequest_id\x18\x01 \x01(\r\x12\x0e\n\x06method\x18\x02 \x01(\t\x12\x12\n\nparameters\x18\x03 \x01(\x0c\"4\n\x0c\x43\x61llResponse\x12\x13\n\x0bresponse_id\x18\x01 \x01(\r\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\x0c\"\x06\n\x04Void\" \n\x0b\x43hannelInfo\x12\x11\n\ton_server\x18\x01 \x01(\x08\x32\xca\x01\n\rServerService\x12*\n\x0b\x63\x61ll_method\x12\x0c.CallRequest\x1a\r.CallResponse\x12%\n\rsend_response\x12\r.CallResponse\x1a\x05.Void\x12\x1f\n\x0fsend_heart_beat\x12\x05.Void\x1a\x05.Void\x12 \n\x10reply_heart_beat\x12\x05.Void\x1a\x05.Void\x12#\n\x0cinit_channel\x12\x0c.ChannelInfo\x1a\x05.VoidB\x03\x90\x01\x01\x62\x06proto3')
+  serialized_pb=_b('\n\x0cserver.proto\"E\n\x0b\x43\x61llRequest\x12\x12\n\nrequest_id\x18\x01 \x01(\r\x12\x0e\n\x06method\x18\x02 \x01(\t\x12\x12\n\nparameters\x18\x03 \x01(\x0c\"4\n\x0c\x43\x61llResponse\x12\x13\n\x0bresponse_id\x18\x01 \x01(\r\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\x0c\"\x06\n\x04Void2\xc3\x01\n\rServerService\x12*\n\x0b\x63\x61ll_method\x12\x0c.CallRequest\x1a\r.CallResponse\x12%\n\rsend_response\x12\r.CallResponse\x1a\x05.Void\x12\x1f\n\x0fsend_heart_beat\x12\x05.Void\x1a\x05.Void\x12 \n\x10reply_heart_beat\x12\x05.Void\x1a\x05.Void\x12\x1c\n\x0ckeep_channel\x12\x05.Void\x1a\x05.VoidB\x03\x90\x01\x01\x62\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -134,41 +134,9 @@ _VOID = _descriptor.Descriptor(
   serialized_end=147,
 )
 
-
-_CHANNELINFO = _descriptor.Descriptor(
-  name='ChannelInfo',
-  full_name='ChannelInfo',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='on_server', full_name='ChannelInfo.on_server', index=0,
-      number=1, type=8, cpp_type=7, label=1,
-      has_default_value=False, default_value=False,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=149,
-  serialized_end=181,
-)
-
 DESCRIPTOR.message_types_by_name['CallRequest'] = _CALLREQUEST
 DESCRIPTOR.message_types_by_name['CallResponse'] = _CALLRESPONSE
 DESCRIPTOR.message_types_by_name['Void'] = _VOID
-DESCRIPTOR.message_types_by_name['ChannelInfo'] = _CHANNELINFO
 
 CallRequest = _reflection.GeneratedProtocolMessageType('CallRequest', (_message.Message,), dict(
   DESCRIPTOR = _CALLREQUEST,
@@ -191,13 +159,6 @@ Void = _reflection.GeneratedProtocolMessageType('Void', (_message.Message,), dic
   ))
 _sym_db.RegisterMessage(Void)
 
-ChannelInfo = _reflection.GeneratedProtocolMessageType('ChannelInfo', (_message.Message,), dict(
-  DESCRIPTOR = _CHANNELINFO,
-  __module__ = 'server_pb2'
-  # @@protoc_insertion_point(class_scope:ChannelInfo)
-  ))
-_sym_db.RegisterMessage(ChannelInfo)
-
 
 DESCRIPTOR.has_options = True
 DESCRIPTOR._options = _descriptor._ParseOptions(descriptor_pb2.FileOptions(), _b('\220\001\001'))
@@ -208,8 +169,8 @@ _SERVERSERVICE = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   options=None,
-  serialized_start=184,
-  serialized_end=386,
+  serialized_start=150,
+  serialized_end=345,
   methods=[
   _descriptor.MethodDescriptor(
     name='call_method',
@@ -248,11 +209,11 @@ _SERVERSERVICE = _descriptor.ServiceDescriptor(
     options=None,
   ),
   _descriptor.MethodDescriptor(
-    name='init_channel',
-    full_name='ServerService.init_channel',
+    name='keep_channel',
+    full_name='ServerService.keep_channel',
     index=4,
     containing_service=None,
-    input_type=_CHANNELINFO,
+    input_type=_VOID,
     output_type=_VOID,
     options=None,
   ),
