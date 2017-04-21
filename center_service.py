@@ -85,10 +85,16 @@ class CenterService(service.Service, paxos.Acceptor, paxos.Proposer, paxos.Learn
         '''
         self.send_pre_proposal()
 
-    def on_lost_channel(self, channel):
-        pass
+    def on_del_channel(self, channel):
+        '''
+        重新选举
+        '''
+        self.proposer_round += 1
+        self.reset_proposer()
+        self.reset_learner()
+        self.send_pre_proposal()
 
-    def on_new_channel(self, channel):
+    def on_add_channel(self, channel):
         pass
 
     # Acceptor

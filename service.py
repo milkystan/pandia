@@ -48,13 +48,13 @@ class Service(object):
         '''
         raise NotImplementedError
 
-    def on_lost_channel(self):
+    def on_del_channel(self):
         '''
         丢失长连接时被调用
         '''
         raise NotImplementedError
 
-    def on_new_channel(self):
+    def on_add_channel(self):
         '''
         新增连接/长连接时被调用
         '''

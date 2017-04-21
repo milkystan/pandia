@@ -14,6 +14,7 @@ from rpc_service import ServerService
 from gevent.event import AsyncResult
 
 MAX_REQUEST_ID = 100
+CONNECT_INTERVAL = 5
 
 
 class Client(ServerService):
@@ -134,7 +135,13 @@ class ChannelClient(ServerService):
     def real_connect(self):
         assert self.address, 'Run "connect" before calling "call_method" or "cast_method"'
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect(self.address)
+        while True:
+            try:
+                sock.connect(self.address)
+            except:
+                gevent.sleep(CONNECT_INTERVAL)
+            else:
+                break
         conn = net.tcp.AdvancedConnection(sock, None, self.keep_alive)
         self.channel = Channel(conn, self, ServerService_Stub)
         if self.keep_alive:

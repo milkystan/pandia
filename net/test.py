@@ -35,5 +35,10 @@ def server():
         tcp.KeepAliveConnection(cli, addr, F)
 
 
+def connect():
+    import socket as o_socket
+    s = o_socket.socket()
+    s.connect(('localhost', 9900))
+
 if __name__ == '__main__':
-    server()
+    connect()
