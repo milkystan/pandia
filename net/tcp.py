@@ -23,25 +23,26 @@ class Connection(object):
         self.peer = peer
         self.handler = None
         self._stop = False
+        self.lock = gevent.lock.BoundedSemaphore()
         self.rev_loop = gevent.spawn(self._receive_loop)
-
-
 
     def __call__(self, handler):
         '''easy way to set handler'''
         self.handler = handler
         return self
 
-
     def send(self, data):
         length = len(data)
         assert length < MAX_LEN, 'Too much data to send!'
         s_data = struct.pack('<I', length) + data
         try:
+            self.lock.acquire()
             self.socket.sendall(s_data)
         except Exception, e:
             print e, __file__
             self.handler.handle_socket_error()
+        finally:
+            self.lock.locked() and self.lock.release()
 
     def _receive_loop(self):
         '''处理半包'''
@@ -80,6 +81,7 @@ class AdvancedConnection(object):
         self.handler = None
         self._stop = False
         self.keep_alive = keep_alive
+        self.lock = gevent.lock.BoundedSemaphore()
         self.rev_loop = gevent.spawn(self._receive_loop)
 
     def __call__(self, handler):
@@ -92,10 +94,13 @@ class AdvancedConnection(object):
         assert length < MAX_LEN, 'Too much data to send!'
         s_data = struct.pack('<I', length) + data
         try:
+            self.lock.acquire()
             self.socket.sendall(s_data)
         except Exception, e:
             print e, __file__
             self.handler.handle_socket_error()
+        finally:
+            self.lock.locked() and self.lock.release()
 
     def close(self):
         self._stop = True

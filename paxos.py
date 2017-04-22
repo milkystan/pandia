@@ -34,9 +34,9 @@ class Acceptor(object):
         aid = ava = None
         if self.proposal_id and pid > self.proposal_id or not self.proposal_id:
             self.proposal_id = pid
-            aid, ava = self.accept_value, self.accept_value
-        pre_cb and pre_cb(aid, ava)
-        return aid, ava
+            aid, ava = self.accept_id, self.accept_value
+        pre_cb and pre_cb(p_round, aid, ava)
+        return p_round, aid, ava
 
     def on_proposal(self, p_round, pid, value, pro_cb):
         if p_round > self.acceptor_round:
@@ -47,8 +47,8 @@ class Acceptor(object):
             self.accept_value = value
             self.accept_id = pid
             acc = True
-        pro_cb and pro_cb(acc)
-        return acc
+        pro_cb and pro_cb(p_round, acc)
+        return p_round, acc
 
 
 class Proposer(object):
@@ -82,29 +82,31 @@ class Proposer(object):
         for s in self.acceptors:
             s.on_proposal(self.proposer_round, self.id, self.value, self.proposal_cb)
 
-    def pre_proposal_cb(self, rid, reply):
-        if self.state == PRE_PROPOSAL:
-            self.pre_proposal_num += 1
-            if rid:
-                if self.max_pre_proposal_reply_id and rid > self.max_pre_proposal_reply_id:
-                    self.max_pre_proposal_reply_id = rid
-                    self.pre_proposal_reply = reply
-                elif not self.max_pre_proposal_reply_id:
-                    self.max_pre_proposal_reply_id = rid
-                    self.pre_proposal_reply = reply
-            if self.pre_proposal_num > len(self.acceptors) / 2:
-                self.state = PROPOSAL
-                if self.pre_proposal_reply:
-                    self.value = self.pre_proposal_reply
-                self.send_proposal()
+    def pre_proposal_cb(self, p_round, rid, reply):
+        if p_round == self.proposer_round:
+            if self.state == PRE_PROPOSAL:
+                self.pre_proposal_num += 1
+                if rid:
+                    if self.max_pre_proposal_reply_id and rid > self.max_pre_proposal_reply_id:
+                        self.max_pre_proposal_reply_id = rid
+                        self.pre_proposal_reply = reply
+                    elif not self.max_pre_proposal_reply_id:
+                        self.max_pre_proposal_reply_id = rid
+                        self.pre_proposal_reply = reply
+                if self.pre_proposal_num > len(self.acceptors) / 2:
+                    self.state = PROPOSAL
+                    if self.pre_proposal_reply:
+                        self.value = self.pre_proposal_reply
+                    self.send_proposal()
 
-    def proposal_cb(self, accepted):
-        if self.state == PROPOSAL:
-            if accepted:
-                self.accepted_num += 1
-                if self.accepted_num > len(self.acceptors) / 2:
-                    self.state = ACCEPTED
-                    self.notify_learner()
+    def proposal_cb(self, p_round, accepted):
+        if p_round == self.proposer_round:
+            if self.state == PROPOSAL:
+                if accepted:
+                    self.accepted_num += 1
+                    if self.accepted_num > len(self.acceptors) / 2:
+                        self.state = ACCEPTED
+                        self.notify_learner()
 
     def notify_learner(self):
         for l in self.learners:

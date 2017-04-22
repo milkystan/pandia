@@ -28,7 +28,7 @@ def rpc(*rpc_args):
             params = [self]
             for a in rpc_args:
                 assert isinstance(a, Arg), 'The type of arguments in rpc decorator must be Arg!'
-                params.append(p_dict.get(a.key) or a.default)
+                params.append(p_dict.get(a.key, a.default))
             return func(*params)
         inner.local_func = func
         return inner

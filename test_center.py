@@ -20,8 +20,6 @@ def run_server(i, addr):
 
 def run_centers():
     for i, c in enumerate(centers):
-        if i > 2:
-            continue
         t = Thread(target=run_server, args=(i, c))
         t.start()
 

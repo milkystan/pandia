@@ -22,17 +22,17 @@ class AcceptorProxy(paxos.Acceptor):
         self.client = client
         self.is_remote = is_remote
 
-    def on_pre_proposal(self, pid, pre_cb):
+    def on_pre_proposal(self, p_round, pid, pre_cb):
         if self.is_remote:
-            self.client.cast_method('CenterService.on_pre_proposal', {'pid': pid}, pre_cb)
+            self.client.cast_method('CenterService.on_pre_proposal', {'pr': p_round, 'pid': pid}, pre_cb)
         else:
-            self.client.on_pre_proposal.local_func(self.client, pid, pre_cb)
+            self.client.on_pre_proposal.local_func(self.client, p_round, pid, pre_cb)
 
-    def on_proposal(self, pid, value, pro_cb):
+    def on_proposal(self, p_round, pid, value, pro_cb):
         if self.is_remote:
-            self.client.cast_method('CenterService.on_proposal', {'pid': pid, 'value': value}, pro_cb)
+            self.client.cast_method('CenterService.on_proposal', {'pr': p_round, 'pid': pid, 'value': value}, pro_cb)
         else:
-            self.client.on_proposal.local_func(self.client, pid, value, pro_cb)
+            self.client.on_proposal.local_func(self.client, p_round, pid, value, pro_cb)
 
 
 class LearnerProxy(paxos.Learner):
@@ -98,13 +98,13 @@ class CenterService(service.Service, paxos.Acceptor, paxos.Proposer, paxos.Learn
         pass
 
     # Acceptor
-    @rpc(Arg('pid'), Arg('pre_cb', None))
-    def on_pre_proposal(self, pid, pre_cb):
-        return super(CenterService, self).on_pre_proposal(pid, pre_cb)
+    @rpc(Arg('pr'), Arg('pid'), Arg('pre_cb', None))
+    def on_pre_proposal(self, p_round, pid, pre_cb):
+        return super(CenterService, self).on_pre_proposal(p_round, pid, pre_cb)
 
-    @rpc(Arg('pid'), Arg('value'), Arg('pro_cb', None))
-    def on_proposal(self, pid, value, pro_cb):
-        return super(CenterService, self).on_proposal(pid, value, pro_cb)
+    @rpc(Arg('pr'), Arg('pid'), Arg('value'), Arg('pro_cb', None))
+    def on_proposal(self, p_round, pid, value, pro_cb):
+        return super(CenterService, self).on_proposal(p_round, pid, value, pro_cb)
 
     # Learner
     @rpc(Arg('pid'), Arg('value'))
